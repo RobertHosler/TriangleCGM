@@ -1,0 +1,22 @@
+{
+  "fitbit": {
+    "appUUID": "4d64b159-8f7c-4a24-a8b2-00971f4dc635",
+    "appType": "app",
+    "appDisplayName": "BG Watcher",
+    "iconFile": "resources/icon.png",
+    "wipeColor": "#607d8b",
+    "requestedPermissions": [
+      "access_heart_rate",
+      "access_activity"
+    ],
+    "buildTargets": [
+      "higgs",
+      "meson"
+    ],
+    "i18n": {
+      "en": {
+        "name": "BG Watcher"
+      }
+    }
+  }
+}
