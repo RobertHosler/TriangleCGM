@@ -33,6 +33,19 @@ function queryOpenWeather() {
   });
 }
 
+function getWeatherEndPoint() {
+  let city = ((getSettings("city")) ? getSettings("city").name : 'charlottesville');
+
+  return "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=" +  getTempType();
+}
+
+function getWeatherApiKey() {
+  if(getSettings('owmAPI')){
+     return getSettings('owmAPI').name;
+  } else {
+    return false;
+  }
+}
 
 function queryBGD(unitsHint) {
   let url = getSgvURL()
@@ -41,6 +54,8 @@ function queryBGD(unitsHint) {
   .then(function (response) {
       return response.json()
       .then(function(data) {
+        console.log("Response received");
+
         let date = new Date();
        
         let currentBgDate = new Date(data[0].dateString);
@@ -108,16 +123,12 @@ function queryBGD(unitsHint) {
 
 
 // Send the weather data to the device
-function returnData(data) {  
+function returnData(data) {
   const myFileInfo = encode(data);
-  outbox.enqueue('file.txt', myFileInfo)
-   
+  outbox.enqueue('file.txt', myFileInfo);
 }
 
 function formatReturnData() {
-     let weatherPromise = new Promise(function(resolve, reject) {
-      resolve( queryOpenWeather() );
-    });
     
     let BGDPromise = new Promise(function(resolve, reject) {
       resolve( queryBGD(getSettings("units") ) );
@@ -136,19 +147,16 @@ function formatReturnData() {
     } else {
      lowThreshold = 70
     }
-        console.log("disableAlert")
-
-      console.log( getSettings('disableAlert'))
-    Promise.all([weatherPromise, BGDPromise]).then(function(values) {
+    Promise.all([BGDPromise]).then(function(values) {
       let dataToSend = {
-        'weather':values[0],
-        'BGD':values[1],
+        'BGD':values[0],
         'settings': {
           'bgColor': getSettings('bgColor'),
           'highThreshold': highThreshold,
           'lowThreshold': lowThreshold,
           'timeFormat' : getSettings('timeFormat'),
-           'disableAlert' : getSettings('disableAlert')
+          'theme' : getSettings('theme'),
+           'disableAlert' : true
         }
       }
       returnData(dataToSend)
@@ -201,26 +209,11 @@ function getSgvURL() {
   }
 }
 
-function getWeatherApiKey() {
-  if(getSettings('owmAPI')){
-     return getSettings('owmAPI').name;
-  } else {
-    return false;
-  }
-}
-
-
-function getWeatherEndPoint() {
-  let city = ((getSettings("city")) ? getSettings("city").name : 'charlottesville');
-
-  return "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=" +  getTempType();
-}
-
 function getTempType() {
    if(getSettings('tempType')){
-     return 'imperial'
+     return 'imperial';
    } else {
-      return 'metric'
+      return 'metric';
    }
 }
 

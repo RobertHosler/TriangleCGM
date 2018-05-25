@@ -2,8 +2,8 @@ function mySettings(props) {
   return (
     <Page>
       <TextImageRow
-        label="Glance"
-        sublabel="https://github.com/Rytiggy/Glance"
+        label="TriangleCagM"
+        sublabel="https://github.com/RobertHosler/TriangleCGM"
         icon="https://image.ibb.co/gbWF2H/twerp_bowtie_64.png"
       />
         <TextInput
@@ -26,25 +26,23 @@ function mySettings(props) {
             {name:"mmol"}
           ]}
         />
-        <Toggle
-            settingsKey="disableAlert"
-            label="Disable Alerts"
-          />
+        <Select
+          label={`Theme`}
+          settingsKey="theme"
+          options={[
+            {name:"Blue Mag"},
+            {name:"Classy"},
+            {name:"Lime"},
+            {name:"Mold"},
+            {name:"Mustard"},
+            {name:"Neon"},
+            {name:"Rose"},
+            {name:"Violet"}
+          ]}
+        />
         <Toggle
           label="12hr | 24hr"
           settingsKey="timeFormat"
-        />
-        <Toggle
-          label="Celsius | Fahrenheit"
-          settingsKey="tempType"
-        />
-        <TextInput
-        label="Open Weather Map API Key"
-        settingsKey="owmAPI"
-        />
-        <TextInput
-        label="City"
-        settingsKey="city"
         />
     </Page>
   );

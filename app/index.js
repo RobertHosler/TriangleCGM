@@ -8,7 +8,7 @@ import fs from "fs";
 import * as fs from "fs";
 import { vibration } from "haptics";
 
-import Graph from "graph.js"
+import Graph from "graph.js";
 
 let heartRate = new HeartRateSensor();
 let totalSeconds = 0;
@@ -22,6 +22,8 @@ let docGraph = document.getElementById("docGraph");
 let myGraph = new Graph(docGraph);
 
 let showAlertModal = true;
+
+let theme = "blue-mag";
 
 let timeOut;
 // Init 
@@ -271,100 +273,135 @@ inbox.onnewfile = () => {
     // If there is a file, move it from staging into the application folder
     fileName = inbox.nextFile();
     if (fileName) {
-     
-      const data = fs.readFileSync('file.txt', 'cbor');  
-      const CONST_COUNT = data.BGD.length - 1;//last bg in the list is the most recent
-      let count = CONST_COUNT;
-      
-      document.getElementById("bg").style.fill="black"
-      
-      // High || Low alert  
-       // data.BGD[count].sgv = 50
-       // data.BGD[count].delta = -4
-      let sgv = data.BGD[count].sgv;
-      
-      if( data.BGD[CONST_COUNT].units_hint == 'mmol' ){
-        sgv = mmol(sgv)
-      }
-      
-      if(!(data.settings.disableAlert)) {
-        if( sgv >=  data.settings.highThreshold) {
-          if((data.BGD[count].delta > 0)){
-            console.log('BG HIGH') 
-            startVibration("nudge", 3000, sgv)
-            document.getElementById("bg").style.fill="#e2574c"
-          } else {
-            console.log('BG still HIGH, But you are going down') 
-            showAlertModal = true;
-          }
-        }
 
-        if(sgv <=  data.settings.lowThreshold) {
-           if((data.BGD[count].delta < 0)){
-              console.log('BG LOW') 
-
-              startVibration("nudge", 3000, sgv)
-              document.getElementById("bg").style.fill="#e2574c"
-             } else {
-            console.log('BG still LOW, But you are going UP') 
-            showAlertModal = true;
-          }
-        }
-      }
-      //End High || Low alert      
-    
-      processOneBg(data.BGD[count])
-      
+      const data = fs.readFileSync('file.txt', 'cbor');
       
       timeFormat = data.settings.timeFormat
       let highThreshold = data.settings.highThreshold
       let lowThreshold =  data.settings.lowThreshold
-
-      if(data.BGD[count].units_hint === "mmol") {
-        highThreshold = mgdl( data.settings.highThreshold )
-        lowThreshold = mgdl( data.settings.lowThreshold )
+      
+      console.log("theme: " + data.settings.theme);
+      if (data.settings.theme) {
+        var selectedTheme = data.settings.theme.values[0].name
+        switch (selectedTheme) {
+          case "Blue Mag":
+            theme = 'blue-mag';
+            break;
+          case "Classy":
+            theme = 'classy';
+            break;
+          case "Lime":
+            theme = 'lime';
+            break;
+          case "Mold":
+            theme = 'mold';
+            break;
+          case "Mustard":
+            theme = 'mustard';
+            break;
+          case "Neon":
+            theme = 'neon';
+            break;
+          case "Rose":
+            theme = 'rose';
+            break;
+          case "Violet":
+            theme = 'violet';
+            break;
+        }
+        theme = "img/" + theme + ".png";
+        document.getElementById("triangleImage").href=theme;
       }
-   //   settings(data.settings, data.BGD[count].units_hint)
+     
+      if (data.BGD) {
+        const CONST_COUNT = data.BGD.length - 1;//last bg in the list is the most recent
+        let count = CONST_COUNT;
 
+        document.getElementById("bg").style.fill="black"
+
+        // High || Low alert  
+         // data.BGD[count].sgv = 50
+         // data.BGD[count].delta = -4
+        let sgv = data.BGD[count].sgv;
+
+        if( data.BGD[CONST_COUNT].units_hint == 'mmol' ){
+          sgv = mmol(sgv)
+        }
       
-      // Added by NiVZ    
-      let ymin = 999;
-      let ymax = 0;
-      
-      data.BGD.forEach(function(bg, index) {
-        if (bg.sgv < ymin) { ymin = bg.sgv; }
-        if (bg.sgv > ymax) { ymax = bg.sgv; }
-      })
-      
-      ymin -=20;
-      ymax +=20;
-      
-      ymin = Math.floor((ymin/10))*10;
-      ymax = Math.floor(((ymax+9)/10))*10;
-            
-      ymin = ymin < 40 ? ymin : 40;
-      ymax = ymax < 210 ? 210 : ymax;
-      
-      high.text = ymax;
-      middle.text = Math.floor(ymin + ((ymax-ymin) *0.5));
-      low.text = ymin;
-      
-      //If mmol is requested format
-      if( data.BGD[CONST_COUNT].units_hint == 'mmol' ){
-        
-        high.text = mmol(ymax);
-        middle.text = mmol(Math.floor(ymin + ((ymax-ymin) *0.5)));
-        low.text = mmol(ymin = ymin < 0 ? 0 : ymin);
-        data.BGD[CONST_COUNT].sgv = mgdl(data.BGD[CONST_COUNT].sgv)
+        if(!(data.settings.disableAlert)) {
+          if( sgv >=  data.settings.highThreshold) {
+            if((data.BGD[count].delta > 0)){
+              console.log('BG HIGH') 
+              startVibration("nudge", 3000, sgv)
+              document.getElementById("bg").style.fill="#e2574c"
+            } else {
+              console.log('BG still HIGH, But you are going down') 
+              showAlertModal = true;
+            }
+          }
+
+          if(sgv <=  data.settings.lowThreshold) {
+             if((data.BGD[count].delta < 0)){
+                console.log('BG LOW') 
+
+                startVibration("nudge", 3000, sgv)
+                document.getElementById("bg").style.fill="#e2574c"
+               } else {
+              console.log('BG still LOW, But you are going UP') 
+              showAlertModal = true;
+            }
+          }
+        }
+        //End High || Low alert      
+
+        processOneBg(data.BGD[count]);
+
+        if(data.BGD[count].units_hint === "mmol") {
+          highThreshold = mgdl( data.settings.highThreshold )
+          lowThreshold = mgdl( data.settings.lowThreshold )
+        }
+     //   settings(data.settings, data.BGD[count].units_hint)
+
+
+        // Added by NiVZ    
+        let ymin = 999;
+        let ymax = 0;
+
+        data.BGD.forEach(function(bg, index) {
+          if (bg.sgv < ymin) { ymin = bg.sgv; }
+          if (bg.sgv > ymax) { ymax = bg.sgv; }
+        })
+
+        ymin -=20;
+        ymax +=20;
+
+        ymin = Math.floor((ymin/10))*10;
+        ymax = Math.floor(((ymax+9)/10))*10;
+
+        ymin = ymin < 40 ? ymin : 40;
+        ymax = ymax < 210 ? 210 : ymax;
+
+        high.text = ymax;
+        middle.text = Math.floor(ymin + ((ymax-ymin) *0.5));
+        low.text = ymin;
+
+        //If mmol is requested format
+        if( data.BGD[CONST_COUNT].units_hint == 'mmol' ){
+
+          high.text = mmol(ymax);
+          middle.text = mmol(Math.floor(ymin + ((ymax-ymin) *0.5)));
+          low.text = mmol(ymin = ymin < 0 ? 0 : ymin);
+          data.BGD[CONST_COUNT].sgv = mgdl(data.BGD[CONST_COUNT].sgv)
+        }
+
+
+        // Set the graph scale
+        myGraph.setYRange(ymin, ymax);
+        // Update the graph
+        myGraph.update(data.BGD);  
       }
       
-      
-      // Set the graph scale
-      myGraph.setYRange(ymin, ymax);
-      // Update the graph
-      myGraph.update(data.BGD);  
-      
-      processWeatherData(data.weather)
+      // processWeatherData(data.weather)
     }
   } while (fileName);
 };
